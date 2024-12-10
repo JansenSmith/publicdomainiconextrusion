@@ -5,7 +5,7 @@ import eu.mihosoft.vrl.v3d.svg.SVGLoad
 def depth
 if(args==null){
 	depth = 0.4
-	println "No parameters found. Using depth = "+name
+	println "No parameters found. Using depth = "+depth
 	print_fonts = true
 } else {
 	depth = args//.get(0)
@@ -34,18 +34,18 @@ def insideParts = s.extrudeLayerToCSG(depth,"insides")
 // The string "2-outsides" represents the layer name in Inkscape
 def outsideParts = s.extrudeLayerToCSG(depth,"outside")
 
-CSG sig = outsideParts.difference(insideParts).moveToCenter()
+CSG ret = outsideParts.difference(insideParts).moveToCenter()
 
 //sig = sig.rotz(45).movey(3).movex(-0.75)
 
-sig = sig.toYMin().toXMax()
-sig = sig.movex(-8).movey(12)
+//sig = sig.toYMin().toXMax()
+//sig = sig.movex(-8).movey(12)
 //sig = sig.mirrorx()
 
 //println sig.totalZ
 
-sig = sig.setColor(javafx.scene.paint.Color.DEEPPINK)
-			.setName("sig")
+ret = ret.setColor(javafx.scene.paint.Color.BLACK)
+			.setName("pubdom")
 			.addAssemblyStep(0, new Transform())
 			.setManufacturing({ toMfg ->
 				return toMfg
@@ -53,4 +53,4 @@ sig = sig.setColor(javafx.scene.paint.Color.DEEPPINK)
 						//.toZMin()//move it down to the flat surface
 			})
 
-return sig
+return ret
