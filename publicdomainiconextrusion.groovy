@@ -8,7 +8,7 @@ if(args==null){
 	println "No parameters found. Using depth = "+depth
 	print_fonts = true
 } else {
-	depth = args//.get(0)
+	depth = args.get(0)
 }
 
 // import sig SVG
