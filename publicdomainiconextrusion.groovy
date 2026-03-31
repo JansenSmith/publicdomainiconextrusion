@@ -24,7 +24,7 @@ def insideParts = s.extrudeLayerToCSG(depth,"insides")
 def outsideParts = s.extrudeLayerToCSG(depth,"outside").toZMin().scaleToMeasurmentZ(depth)
 println "pubdom: inside.totalZ=${insideParts.totalZ}, outside.totalZ=${outsideParts.totalZ}"
 
-CSG ret = outsideParts.difference(insideParts).moveToCenter().toZMin()
+CSG ret = outsideParts.difference(insideParts).toXMin().toYMin().toZMin()
 
 ret = ret.setColor(javafx.scene.paint.Color.BLACK)
 			.setName("pubdom")
