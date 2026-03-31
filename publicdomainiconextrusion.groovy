@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 def depth
 if(args==null){
 	depth = 0.4
-	System.err.println "No parameters found. Using depth = "+depth
+	println "No parameters found. Using depth = "+depth
 	print_fonts = true
 } else {
 	depth = args.get(0)
@@ -23,24 +23,24 @@ File f = ScriptingEngine
 
 
 //println "Extruding SVG "+f.getAbsolutePath()
-System.err.println "pubdom: isFxThread=" + javafx.application.Platform.isFxApplicationThread()
+println "pubdom: isFxThread=" + javafx.application.Platform.isFxApplicationThread()
 def parts = [null, null]
 def latch = new java.util.concurrent.CountDownLatch(1)
 javafx.application.Platform.runLater({
     try {
-        System.err.println "pubdom runLater: starting SVGLoad"
+        println "pubdom runLater: starting SVGLoad"
         SVGLoad s = new SVGLoad(f.toURI())
         parts[0] = s.extrudeLayerToCSG(depth,"insides")
         parts[1] = s.extrudeLayerToCSG(depth,"outside")
-        System.err.println "pubdom runLater: done, inside=${parts[0]}, outside=${parts[1]}"
+        println "pubdom runLater: done, inside.totalZ=${parts[0].totalZ}, outside.totalZ=${parts[1].totalZ}"
     } catch(Exception e) {
-        System.err.println "pubdom runLater error: " + e
+        println "pubdom runLater error: " + e
     } finally {
         latch.countDown()
     }
 })
 boolean completed = latch.await(10, java.util.concurrent.TimeUnit.SECONDS)
-System.err.println "pubdom: latch completed=${completed}, parts=${parts}"
+println "pubdom: latch completed=${completed}, parts=${parts}"
 
 CSG ret = parts[1].difference(parts[0]).moveToCenter()
 
