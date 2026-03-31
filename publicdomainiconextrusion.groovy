@@ -1,5 +1,7 @@
 import eu.mihosoft.vrl.v3d.*
 import eu.mihosoft.vrl.v3d.svg.SVGLoad
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 
 def depth
@@ -19,22 +21,28 @@ File f = ScriptingEngine
 		"public-domain-icon.svg"// File from within the Git repo
 	)
 
-	
-//println "Extruding SVG "+f.getAbsolutePath()
-SVGLoad s = new SVGLoad(f.toURI())
-//println "Layers= "+s.getLayers()
-// A map of layers to polygons
-//HashMap<String,List<Polygon>> polygonsByLayer = s.toPolygons()
-// extrude all layers to a map to 10mm thick
-//HashMap<String,ArrayList<CSG>> csgByLayers = s.extrudeLayers(10)
-// extrude just one layer to 10mm
-// The string "1-holes" represents the layer name in Inkscape
-def insideParts = s.extrudeLayerToCSG(depth,"insides")
-// seperate holes and outsides using layers to differentiate
-// The string "2-outsides" represents the layer name in Inkscape
-def outsideParts = s.extrudeLayerToCSG(depth,"outside")
 
-CSG ret = outsideParts.difference(insideParts).moveToCenter()
+//println "Extruding SVG "+f.getAbsolutePath()
+println "pubdom: isFxThread=" + javafx.application.Platform.isFxApplicationThread()
+def parts = [null, null]
+def latch = new java.util.concurrent.CountDownLatch(1)
+javafx.application.Platform.runLater({
+    try {
+        println "pubdom runLater: starting SVGLoad"
+        SVGLoad s = new SVGLoad(f.toURI())
+        parts[0] = s.extrudeLayerToCSG(depth,"insides")
+        parts[1] = s.extrudeLayerToCSG(depth,"outside")
+        println "pubdom runLater: done, inside=${parts[0]}, outside=${parts[1]}"
+    } catch(Exception e) {
+        println "pubdom runLater error: " + e
+    } finally {
+        latch.countDown()
+    }
+})
+boolean completed = latch.await(10, java.util.concurrent.TimeUnit.SECONDS)
+println "pubdom: latch completed=${completed}, parts=${parts}"
+
+CSG ret = parts[1].difference(parts[0]).moveToCenter()
 
 //sig = sig.rotz(45).movey(3).movex(-0.75)
 
